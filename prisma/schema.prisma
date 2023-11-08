@@ -1,34 +1,39 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
-}
-
-model ksiazki {
-    id Int @id @default(autoincrement())
-    tytul String
-    autor String
-    data_wydania DateTime
-}
-
-model wypozyczalnia {
-    id Int @id @default(autoincrement())
-    id_k Int
-    id_c Int
-    data_od DateTime
-    data_do DateTime
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model czytelnicy {
-    id Int @id @default(autoincrement())
-    imie String
-    nazwisko String
-    email String
-    telefon String 
+  id_c          Int             @id
+  imie          String?         @db.VarChar(255)
+  nazwisko      String?         @db.VarChar(255)
+  email         String?         @db.VarChar(255)
+  telefon       Int?
+  wypozyczalnia wypozyczalnia[]
+}
+
+model ksiazki {
+  id_k          Int             @id
+  tytul         String?         @db.VarChar(255)
+  autor         String?         @db.VarChar(255)
+  gatunek       String?         @db.VarChar(255)
+  data_wydania  DateTime?       @db.Date
+  wypozyczalnia wypozyczalnia[]
+}
+
+model wypozyczalnia {
+  id            Int         @id
+  id_ksiazki    Int?
+  id_czytelnika Int?
+  data_od       DateTime?   @db.Date
+  data_do       DateTime?   @db.Date
+  ksiazki       ksiazki?    @relation(fields: [id_ksiazki], references: [id_k], onDelete: Restrict, onUpdate: Restrict, map: "wypozyczalnia_ibfk_1")
+  czytelnicy    czytelnicy? @relation(fields: [id_czytelnika], references: [id_c], onDelete: Restrict, onUpdate: Restrict, map: "wypozyczalnia_ibfk_2")
+
+  @@index([id_czytelnika], map: "id_czytelnika")
+  @@index([id_ksiazki], map: "id_ksiazki")
 }
