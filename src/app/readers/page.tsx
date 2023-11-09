@@ -7,21 +7,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
-import type { ksiazki } from '@prisma/client';
+import type { czytelnicy } from '@prisma/client';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import '~/styles/nthList.css';
 import { modal, toast } from '~/utils/swal';
 
 export default function Books() {
-    const [data, setData] = useState<ksiazki[]>([]);
+    const [data, setData] = useState<czytelnicy[]>([]);
 
     const [search, setSearch] = useState('');
     const [dataChanged, setDataChanged] = useState<boolean>(false);
     useEffect(() => {
         const dataFetch = async () =>
             await axios
-                .post(`/api/books/search`, {
+                .post(`/api/readers/search`, {
                     body: {
                         search: search,
                     },
@@ -35,10 +35,10 @@ export default function Books() {
             title: 'Dodaj książkę',
             html: `
             <form class="flex flex-col gap-3">
-                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Tytuł" type="text" data-form-type="other" name="title"/>
-                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Autor" type="text" data-form-type="other" name="author"/>
-                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Gatunek" type="text" data-form-type="other" name="genre"/>
-                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Data wydania" type="date" data-form-type="other" name="date"/>
+                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Imię" type="text" data-form-type="other" name="firstname"/>
+                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Nazwisko" type="text" data-form-type="other" name="surname"/>
+                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="E-mail" type="text" data-form-type="other" name="email"/>
+                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Telefon" type="date" data-form-type="other" name="phone"/>
             </form>
             `,
             confirmButtonText: 'Dodaj',
@@ -47,10 +47,10 @@ export default function Books() {
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 const values = {
-                    title: data.title,
-                    author: data.author,
-                    genre: data.genre,
-                    releaseDate: data.date ?? new Date(),
+                    firstname: data.firstname,
+                    surname: data.surname,
+                    email: data.email,
+                    phone: data.phone,
                 };
                 return values;
             },
@@ -58,17 +58,12 @@ export default function Books() {
 
         if (!form.isConfirmed) return;
 
-        const { title, author, genre, releaseDate } = form.value;
+        const { firstname, surname, email, phone } = form.value;
 
         try {
             await axios
-                .post(`/api/books/add`, {
-                    body: {
-                        title: title,
-                        author: author,
-                        genre: genre,
-                        releaseDate: releaseDate,
-                    },
+                .post(`/api/readers/add`, {
+                    body: { firstname, surname, email, phone },
                 })
                 .then(async () => {
                     setDataChanged(!dataChanged);
@@ -82,9 +77,9 @@ export default function Books() {
         }
     };
 
-    const deleteBook = async (id: number) => {
+    const deleteReader = async (id: number) => {
         await axios
-            .post('/api/books/delete', {
+            .post('/api/readers/delete', {
                 body: {
                     id,
                 },
@@ -106,23 +101,22 @@ export default function Books() {
                 <div className="w-screen flex flex-col items-center backdrop-blur-[1.5px]">
                     <div className="flex justify-around w-screen bg-gray-700 bg-opacity-50 py-3">
                         <div className="w-72"></div>
-                        <div className="text-3xl w-72">Tytuł</div>
-                        <div className="text-3xl w-72">Autor</div>
-                        <div className="text-3xl w-72">Gatunek</div>
-                        <div className="text-3xl w-72">Data wydania</div>
+                        <div className="text-3xl w-72">Imię</div>
+                        <div className="text-3xl w-72">Nazwisko</div>
+                        <div className="text-3xl w-72">Telefon</div>
+                        <div className="text-3xl w-72">E-mail</div>
                     </div>
                     {data.length !== 0 &&
-                        data.map((book) => {
-                            const releaseDate = book.data_wydania && new Date(book.data_wydania);
+                        data.map((reader) => {
                             return (
-                                <div key={book.id_k} className="py-3 flex justify-around items-center w-screen list">
-                                    <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3" onClick={() => deleteBook(book.id_k)}>
+                                <div key={reader.id_c} className="py-3 flex justify-around items-center w-screen list">
+                                    <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3" onClick={() => deleteReader(reader.id_c)}>
                                         Usuń
                                     </button>
-                                    <div className="text-lg w-72 ">{book.tytul}</div>
-                                    <div className="text-lg w-72 ">{book.autor}</div>
-                                    <div className="text-lg w-72 ">{book.gatunek}</div>
-                                    <div className="text-lg w-72 ">{releaseDate instanceof Date ? releaseDate.toLocaleDateString('en-GB') : 'N/A'}</div>
+                                    <div className="text-lg w-72 ">{reader.imie}</div>
+                                    <div className="text-lg w-72 ">{reader.nazwisko}</div>
+                                    <div className="text-lg w-72 ">{reader.telefon}</div>
+                                    <div className="text-lg w-72 ">{reader.email}</div>
                                 </div>
                             );
                         })}

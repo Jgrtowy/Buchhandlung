@@ -3,6 +3,37 @@
 @tailwind utilities;
 
 body {
-    background-color: #242424;
     overflow-x: hidden;
+}
+
+body.swal2-shown > [aria-hidden='true'] {
+    transition: filter 100ms;
+    filter: blur(6px) brightness(0.5);
+}
+
+.swal2-html-container {
+    color: #fff !important;
+}
+
+:root {
+    font-family: Inter, sans-serif;
+    line-height: 1.5;
+    color: var(--font-light);
+    color-scheme: dark light;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+
+    background-image: radial-gradient(var(--accent-primary) 6%, var(--bg-primary) 6%);
+    background-size: 26px 26px;
+    background-position: center top;
+
+    --bg-primary: hsl(252, 14%, 7%);
+    --bg-secondary: hsl(251, 20%, 11.25%);
+    --accent-primary: #387556;
+    --accent-secondary: #57bd8a;
+    --btn-hover: #387556;
+    --font-light: hsla(0, 0%, 93%, 0.933);
+    --font-light-opaque: hsla(0, 0%, 75%, 0.45);
+    --price-color: #19da3380;
+    --warning-color: #eed202;
 }

@@ -1,0 +1,7 @@
+.list {
+    background-color: transparent;
+}
+
+.list:nth-child(even) {
+    background-color: rgb(31 41 55 / 0.5);
+}
