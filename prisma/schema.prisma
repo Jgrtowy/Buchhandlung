@@ -8,7 +8,7 @@ datasource db {
 }
 
 model czytelnicy {
-  id_c          Int             @id
+  id_c          Int             @id @default(autoincrement())
   imie          String?         @db.VarChar(255)
   nazwisko      String?         @db.VarChar(255)
   email         String?         @db.VarChar(255)
@@ -17,7 +17,7 @@ model czytelnicy {
 }
 
 model ksiazki {
-  id_k          Int             @id
+  id_k          Int             @id @default(autoincrement())
   tytul         String?         @db.VarChar(255)
   autor         String?         @db.VarChar(255)
   gatunek       String?         @db.VarChar(255)
@@ -26,7 +26,7 @@ model ksiazki {
 }
 
 model wypozyczalnia {
-  id            Int         @id
+  id            Int         @id @default(autoincrement())
   id_ksiazki    Int?
   id_czytelnika Int?
   data_od       DateTime?   @db.Date
