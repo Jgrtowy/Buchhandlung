@@ -38,7 +38,7 @@ export default function Books() {
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Imię" type="text" data-form-type="other" name="firstname"/>
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Nazwisko" type="text" data-form-type="other" name="surname"/>
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="E-mail" type="text" data-form-type="other" name="email"/>
-                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Telefon" type="date" data-form-type="other" name="phone"/>
+                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Telefon" type="text" data-form-type="other" name="phone"/>
             </form>
             `,
             confirmButtonText: 'Dodaj',
@@ -60,17 +60,27 @@ export default function Books() {
 
         const { firstname, surname, email, phone } = form.value;
 
+        if (isNaN(parseInt(phone))) {
+            await toast.fire({
+                icon: 'error',
+                title: 'Niepoprawny numer telefonu',
+            });
+            return;
+        }
+
         try {
             await axios
                 .post(`/api/readers/add`, {
                     body: { firstname, surname, email, phone },
                 })
-                .then(async () => {
-                    setDataChanged(!dataChanged);
-                    await toast.fire({
-                        icon: 'success',
-                        title: 'Dodano książkę',
-                    });
+                .then(async (res) => {
+                    if (res.data.message == 'success') {
+                        setDataChanged(!dataChanged);
+                        await toast.fire({
+                            icon: 'success',
+                            title: 'Dodano książkę',
+                        });
+                    }
                 });
         } catch (error) {
             console.error(error);
@@ -84,14 +94,17 @@ export default function Books() {
                     id,
                 },
             })
-            .then(() => {
-                setDataChanged(!dataChanged);
+            .then((res) => {
+                if (res.data.message == 'success') {
+                    setDataChanged(!dataChanged);
+                    return;
+                }
             });
     };
     return (
         <div className="flex flex-col items-center text-white w-100 h-screen gap-5">
             <div className="flex gap-5 mt-5">
-                <button onClick={addPopup} className="bg-[#100f14] border-2  border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12">
+                <button onClick={addPopup} className="bg-[#100f14] border-2 border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12">
                     Dodaj
                 </button>
                 <input type="text" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
@@ -122,7 +135,7 @@ export default function Books() {
                         })}
                 </div>
             )}
-            {data.length === 0 && <h1 className="text-6xl">Nie znaleziono książek</h1>}
+            {data.length === 0 && <h1 className="text-6xl">Nie znaleziono czytelników</h1>}
         </div>
     );
 }
