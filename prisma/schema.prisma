@@ -22,6 +22,7 @@ model ksiazki {
   autor         String?         @db.VarChar(255)
   gatunek       String?         @db.VarChar(255)
   data_wydania  DateTime?       @db.Date
+  wypozyczona   Boolean?
   wypozyczalnia wypozyczalnia[]
 }
 

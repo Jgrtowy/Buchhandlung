@@ -32,7 +32,7 @@ export default function Books() {
 
     const addPopup = async () => {
         const form = await modal.fire({
-            title: 'Dodaj książkę',
+            title: 'Dodaj czytelnika',
             html: `
             <form class="flex flex-col gap-3">
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Imię" type="text" data-form-type="other" name="firstname"/>
@@ -104,7 +104,7 @@ export default function Books() {
     return (
         <div className="flex flex-col items-center text-white w-100 h-screen gap-5">
             <div className="flex gap-5 mt-5">
-                <button onClick={addPopup} className="bg-[#100f14] border-2 border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12">
+                <button onClick={addPopup} className="bg-[#100f14] border-2  border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12 flex justify-center items-center hover:bg-[#57bd8a] transition duration-300 ease-in-out">
                     Dodaj
                 </button>
                 <input type="text" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />

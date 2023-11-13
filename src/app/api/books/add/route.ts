@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
                 autor: author,
                 gatunek: genre,
                 data_wydania: new Date(releaseDate),
+                wypozyczona: false,
             },
         });
         return Response.json({ message: 'success' });

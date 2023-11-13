@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
                 imie: firstname,
                 nazwisko: surname,
                 email: email,
-                telefon: phone,
+                telefon: parseInt(phone),
             },
         });
         return Response.json({ message: 'success' });

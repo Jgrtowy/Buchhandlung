@@ -89,46 +89,51 @@ export default function Books() {
                     id,
                 },
             })
-            .then(() => {
+            .then(async () => {
                 setDataChanged(!dataChanged);
+                await toast.fire({
+                    icon: 'success',
+                    title: 'Usunięto książkę',
+                });
             });
     };
     return (
         <div className="flex flex-col items-center text-white w-100 h-screen gap-5">
             <div className="flex gap-5 mt-5">
-                <button onClick={addPopup} className="bg-[#100f14] border-2  border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12">
+                <button onClick={addPopup} className="bg-[#100f14] border-2  border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12 flex justify-center items-center hover:bg-[#57bd8a] transition duration-300 ease-in-out">
                     Dodaj
                 </button>
                 <input type="text" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
             </div>
-
             {data.length !== 0 && (
-                <div className="w-screen flex flex-col items-center backdrop-blur-[1.5px]">
-                    <div className="flex justify-around w-screen bg-gray-700 bg-opacity-50 py-3">
-                        <div className="w-72"></div>
-                        <div className="text-3xl w-72">Tytuł</div>
-                        <div className="text-3xl w-72">Autor</div>
-                        <div className="text-3xl w-72">Gatunek</div>
-                        <div className="text-3xl w-72">Data wydania</div>
+                <>
+                    <div className="w-screen flex flex-col items-center backdrop-blur-[1.5px]">
+                        <div className="flex justify-around w-screen bg-gray-700 bg-opacity-50 py-3">
+                            <div className="w-72"></div>
+                            <div className="text-3xl w-72">Tytuł</div>
+                            <div className="text-3xl w-72">Autor</div>
+                            <div className="text-3xl w-72">Gatunek</div>
+                            <div className="text-3xl w-72">Data wydania</div>
+                        </div>
+                        {data.length !== 0 &&
+                            data.map((book) => {
+                                const releaseDate = book.data_wydania && new Date(book.data_wydania);
+                                return (
+                                    <div key={book.id_k} className="py-3 flex justify-around items-center w-screen list">
+                                        <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3" onClick={() => deleteBook(book.id_k)}>
+                                            Usuń
+                                        </button>
+                                        <div className="text-lg w-72 ">{book.tytul}</div>
+                                        <div className="text-lg w-72 ">{book.autor}</div>
+                                        <div className="text-lg w-72 ">{book.gatunek}</div>
+                                        <div className="text-lg w-72 ">{releaseDate instanceof Date ? releaseDate.toLocaleDateString('en-GB') : 'N/A'}</div>
+                                    </div>
+                                );
+                            })}
                     </div>
-                    {data.length !== 0 &&
-                        data.map((book) => {
-                            const releaseDate = book.data_wydania && new Date(book.data_wydania);
-                            return (
-                                <div key={book.id_k} className="py-3 flex justify-around items-center w-screen list">
-                                    <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3" onClick={() => deleteBook(book.id_k)}>
-                                        Usuń
-                                    </button>
-                                    <div className="text-lg w-72 ">{book.tytul}</div>
-                                    <div className="text-lg w-72 ">{book.autor}</div>
-                                    <div className="text-lg w-72 ">{book.gatunek}</div>
-                                    <div className="text-lg w-72 ">{releaseDate instanceof Date ? releaseDate.toLocaleDateString('en-GB') : 'N/A'}</div>
-                                </div>
-                            );
-                        })}
-                </div>
+                </>
             )}
-            {data.length === 0 && <h1 className="text-6xl">Nie znaleziono książek</h1>}
+            {data.length === 0 && <h1 className="text-6xl mt-5">Nie znaleziono książek</h1>}
         </div>
     );
 }
