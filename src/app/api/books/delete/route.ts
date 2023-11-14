@@ -1,12 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { NextRequest } from 'next/server';
 import { db } from '~/server/db';
 
+interface Data {
+    body: {
+        id: number;
+    };
+}
+
 export async function POST(req: NextRequest) {
-    const data: any = await req.json();
+    const data = (await req.json()) as Data;
     const { id } = data.body;
     try {
         await db.ksiazki.delete({
@@ -17,5 +19,6 @@ export async function POST(req: NextRequest) {
         return Response.json('success');
     } catch (error) {
         console.error(error);
+        return Response.json('error');
     }
 }

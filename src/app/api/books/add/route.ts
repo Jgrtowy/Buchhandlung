@@ -1,15 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { NextRequest } from 'next/server';
 import { db } from '~/server/db';
 
+interface Data {
+    body: {
+        title: string;
+        author: string;
+        genre: string;
+        releaseDate: string;
+    };
+}
+
 export async function POST(req: NextRequest) {
-    const data: any = await req.json();
+    const data = (await req.json()) as Data;
     const { title, author, genre, releaseDate } = data.body;
     try {
         await db.ksiazki.create({
@@ -24,6 +26,6 @@ export async function POST(req: NextRequest) {
         return Response.json({ message: 'success' });
     } catch (error) {
         console.log(error);
-        return Response.json(error);
+        return Response.json({ message: 'error' });
     }
 }

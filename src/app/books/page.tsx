@@ -1,17 +1,28 @@
-/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/prefer-optional-chain */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @next/next/no-async-client-component */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
 import type { ksiazki } from '@prisma/client';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import '~/styles/nthList.css';
 import { modal, toast } from '~/utils/swal';
+
+interface BooksResponse {
+    data: ksiazki[];
+}
+
+interface FormValues {
+    title: string;
+    author: string;
+    genre: string;
+    releaseDate: Date;
+}
+
+interface SuccessResponse {
+    data: {
+        message: SuccessMessage;
+    };
+}
+
+type SuccessMessage = 'success' | 'error';
 
 export default function Books() {
     const [data, setData] = useState<ksiazki[]>([]);
@@ -26,7 +37,7 @@ export default function Books() {
                         search: search,
                     },
                 })
-                .then((res) => setData(res.data));
+                .then((res: BooksResponse) => setData(res.data));
         dataFetch().catch((error) => console.error(error));
     }, [search, dataChanged]);
 
@@ -43,7 +54,7 @@ export default function Books() {
             `,
             confirmButtonText: 'Dodaj',
             preConfirm: () => {
-                const form = document.querySelector('form') as HTMLFormElement;
+                const form = document.querySelector('form')!;
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 const values = {
@@ -58,7 +69,7 @@ export default function Books() {
 
         if (!form.isConfirmed) return;
 
-        const { title, author, genre, releaseDate } = form.value;
+        const { title, author, genre, releaseDate } = form.value as FormValues;
 
         try {
             await axios
@@ -70,12 +81,19 @@ export default function Books() {
                         releaseDate: releaseDate,
                     },
                 })
-                .then(async () => {
-                    setDataChanged(!dataChanged);
-                    await toast.fire({
-                        icon: 'success',
-                        title: 'Dodano książkę',
-                    });
+                .then(async (res: SuccessResponse) => {
+                    if (res.data.message === 'success') {
+                        setDataChanged(!dataChanged);
+                        await toast.fire({
+                            icon: 'success',
+                            title: 'Dodano książkę',
+                        });
+                    } else {
+                        await toast.fire({
+                            icon: 'error',
+                            title: 'Nie udało się dodać książki',
+                        });
+                    }
                 });
         } catch (error) {
             console.error(error);
@@ -89,12 +107,19 @@ export default function Books() {
                     id,
                 },
             })
-            .then(async () => {
-                setDataChanged(!dataChanged);
-                await toast.fire({
-                    icon: 'success',
-                    title: 'Usunięto książkę',
-                });
+            .then(async (res: SuccessResponse) => {
+                if (res.data.message === 'success') {
+                    setDataChanged(!dataChanged);
+                    await toast.fire({
+                        icon: 'success',
+                        title: 'Usunięto książkę',
+                    });
+                } else {
+                    await toast.fire({
+                        icon: 'error',
+                        title: 'Nie udało się usunąć książki',
+                    });
+                }
             });
     };
     return (

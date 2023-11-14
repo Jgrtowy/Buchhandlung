@@ -1,15 +1,15 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { czytelnicy } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { type czytelnicy } from '@prisma/client';
+import { type NextRequest } from 'next/server';
 import { db } from '~/server/db';
 
+interface Data {
+    body: {
+        search: string;
+    };
+}
+
 export async function POST(req: NextRequest) {
-    const data: any = await req.json();
+    const data = (await req.json()) as Data;
     if (data.body.search === '') {
         try {
             const readers: czytelnicy[] = await db.czytelnicy.findMany();
@@ -39,5 +39,6 @@ export async function POST(req: NextRequest) {
         return Response.json(readers);
     } catch (error) {
         console.log(error);
+        return Response.json({ message: 'error' });
     }
 }

@@ -1,17 +1,28 @@
-/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/prefer-optional-chain */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @next/next/no-async-client-component */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
 import type { czytelnicy } from '@prisma/client';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import '~/styles/nthList.css';
 import { modal, toast } from '~/utils/swal';
+
+interface ReadersResponse {
+    data: czytelnicy[];
+}
+
+interface FormValues {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+}
+
+interface SuccessResponse {
+    data: {
+        message: SuccessMessage;
+    };
+}
+
+type SuccessMessage = 'success' | 'error';
 
 export default function Books() {
     const [data, setData] = useState<czytelnicy[]>([]);
@@ -26,7 +37,7 @@ export default function Books() {
                         search: search,
                     },
                 })
-                .then((res) => setData(res.data));
+                .then((res: ReadersResponse) => setData(res.data));
         dataFetch().catch((error) => console.error(error));
     }, [search, dataChanged]);
 
@@ -35,20 +46,20 @@ export default function Books() {
             title: 'Dodaj czytelnika',
             html: `
             <form class="flex flex-col gap-3">
-                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Imię" type="text" data-form-type="other" name="firstname"/>
-                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Nazwisko" type="text" data-form-type="other" name="surname"/>
+                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Imię" type="text" data-form-type="other" name="firstName"/>
+                <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Nazwisko" type="text" data-form-type="other" name="lastName"/>
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="E-mail" type="text" data-form-type="other" name="email"/>
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Telefon" type="text" data-form-type="other" name="phone"/>
             </form>
             `,
             confirmButtonText: 'Dodaj',
             preConfirm: () => {
-                const form = document.querySelector('form') as HTMLFormElement;
+                const form = document.querySelector('form')!;
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 const values = {
-                    firstname: data.firstname,
-                    surname: data.surname,
+                    firstname: data.firstName,
+                    lastName: data.lastName,
                     email: data.email,
                     phone: data.phone,
                 };
@@ -58,7 +69,7 @@ export default function Books() {
 
         if (!form.isConfirmed) return;
 
-        const { firstname, surname, email, phone } = form.value;
+        const { firstName, lastName, email, phone } = form.value as FormValues;
 
         if (isNaN(parseInt(phone))) {
             await toast.fire({
@@ -71,14 +82,19 @@ export default function Books() {
         try {
             await axios
                 .post(`/api/readers/add`, {
-                    body: { firstname, surname, email, phone },
+                    body: { firstName, lastName, email, phone },
                 })
-                .then(async (res) => {
+                .then(async (res: SuccessResponse) => {
                     if (res.data.message == 'success') {
                         setDataChanged(!dataChanged);
                         await toast.fire({
                             icon: 'success',
                             title: 'Dodano książkę',
+                        });
+                    } else {
+                        await toast.fire({
+                            icon: 'error',
+                            title: 'Nie można dodać książki',
                         });
                     }
                 });
@@ -94,10 +110,18 @@ export default function Books() {
                     id,
                 },
             })
-            .then((res) => {
+            .then(async (res: SuccessResponse) => {
                 if (res.data.message == 'success') {
                     setDataChanged(!dataChanged);
-                    return;
+                    await toast.fire({
+                        icon: 'success',
+                        title: 'Usunięto czytelnika',
+                    });
+                } else {
+                    await toast.fire({
+                        icon: 'error',
+                        title: 'Nie można usunąć czytelnika',
+                    });
                 }
             });
     };

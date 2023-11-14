@@ -1,12 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/prefer-optional-chain */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @next/next/no-async-client-component */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 'use client';
 import type { ksiazki } from '@prisma/client';
 import axios from 'axios';
@@ -14,22 +5,44 @@ import { useEffect, useState } from 'react';
 import '~/styles/nthList.css';
 import { modal, toast } from '~/utils/swal';
 
-export default function Borrows() {
-    interface Borrow {
-        data_od: Date;
-        data_do: Date;
-        czytelnicy: {
-            imie: string;
-            nazwisko: string;
-        };
-        ksiazki: {
-            id_k: number;
-            tytul: string;
-            autor: string;
-            wypozyczona: boolean;
-        };
-    }
+interface Borrow {
+    data_od: Date;
+    data_do: Date;
+    czytelnicy: {
+        imie: string;
+        nazwisko: string;
+    };
+    ksiazki: {
+        id_k: number;
+        tytul: string;
+        autor: string;
+        wypozyczona: boolean;
+    };
+}
 
+interface BooksResponse {
+    data: ksiazki[];
+}
+
+interface BorrowsResponse {
+    data: Borrow[];
+}
+
+interface FormValues {
+    firstName: string;
+    lastName: string;
+    returnDate: Date;
+}
+
+interface SuccessResponse {
+    data: {
+        message: SuccessMessage;
+    };
+}
+
+type SuccessMessage = 'success' | 'error';
+
+export default function Borrows() {
     const [data, setData] = useState<ksiazki[]>([]);
     const [borrowed, setBorrowed] = useState<Borrow[]>([]);
 
@@ -44,7 +57,7 @@ export default function Borrows() {
                         search,
                     },
                 })
-                .then((res) => setData(res.data));
+                .then((res: BooksResponse) => setData(res.data));
         dataFetch().catch((error) => console.error(error));
     }, [search, dataChanged]);
 
@@ -56,7 +69,7 @@ export default function Borrows() {
                         search: secondSearch,
                     },
                 })
-                .then((res) => setBorrowed(res.data));
+                .then((res: BorrowsResponse) => setBorrowed(res.data));
         dataFetch().catch((error) => console.error(error));
     }, [secondSearch, dataChanged]);
 
@@ -72,7 +85,7 @@ export default function Borrows() {
             `,
             confirmButtonText: 'Dodaj',
             preConfirm: () => {
-                const form = document.querySelector('form') as HTMLFormElement;
+                const form = document.querySelector('form')!;
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 const values = {
@@ -86,7 +99,7 @@ export default function Borrows() {
 
         if (!form.isConfirmed) return;
 
-        const { firstName, lastName, returnDate } = form.value;
+        const { firstName, lastName, returnDate } = form.value as FormValues;
         if (!firstName || !lastName || !returnDate)
             return await toast.fire({
                 icon: 'error',
@@ -103,12 +116,19 @@ export default function Borrows() {
                         returnDate,
                     },
                 })
-                .then(async () => {
-                    setDataChanged(!dataChanged);
-                    await toast.fire({
-                        icon: 'success',
-                        title: 'Wypożyczono książkę',
-                    });
+                .then(async (res: SuccessResponse) => {
+                    if (res.data.message === 'success') {
+                        setDataChanged(!dataChanged);
+                        await toast.fire({
+                            icon: 'success',
+                            title: 'Wypożyczono książkę',
+                        });
+                    } else {
+                        await toast.fire({
+                            icon: 'error',
+                            title: 'Nie znaleziono czytelnika',
+                        });
+                    }
                 });
         } catch (error) {
             console.error(error);
@@ -123,12 +143,19 @@ export default function Borrows() {
                         id_k,
                     },
                 })
-                .then(async () => {
-                    setDataChanged(!dataChanged);
-                    await toast.fire({
-                        icon: 'success',
-                        title: 'Zwrócono książkę',
-                    });
+                .then(async (res: SuccessResponse) => {
+                    if (res.data.message === 'success') {
+                        setDataChanged(!dataChanged);
+                        await toast.fire({
+                            icon: 'success',
+                            title: 'Zwrócono książkę',
+                        });
+                    } else {
+                        await toast.fire({
+                            icon: 'error',
+                            title: 'Nie można zwrócić książki',
+                        });
+                    }
                 });
         } catch (error) {
             console.error(error);
@@ -155,7 +182,7 @@ export default function Borrows() {
                             <div className="text-3xl w-52">Data do</div>
                         </div>
                         {borrowed.length !== 0 &&
-                            borrowed.map((item: any) => {
+                            borrowed.map((item: Borrow) => {
                                 const dateFrom = new Date(item.data_od);
                                 const dateTo = new Date(item.data_do);
                                 if (item.ksiazki.wypozyczona) {

@@ -1,16 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
 import { db } from '~/server/db';
+
+interface Data {
+    body: {
+        id_k: number;
+        firstName: string;
+        lastName: string;
+        returnDate: string;
+    };
+}
 
 export async function POST(req: NextRequest) {
     try {
-        const data = await req.json();
+        const data = (await req.json()) as Data;
         const { id_k, firstName, lastName, returnDate } = data.body;
         await db.ksiazki.update({
             where: {
@@ -51,5 +53,6 @@ export async function POST(req: NextRequest) {
         return Response.json({ message: 'success' });
     } catch (error) {
         console.log(error);
+        return Response.json({ message: 'error' });
     }
 }
