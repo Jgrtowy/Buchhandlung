@@ -3,8 +3,8 @@ import { db } from '~/server/db';
 
 interface Data {
     body: {
-        firstname: string;
-        surname: string;
+        firstName: string;
+        lastName: string;
         email: string;
         phone: string;
     };
@@ -12,12 +12,14 @@ interface Data {
 
 export async function POST(req: NextRequest) {
     const data = (await req.json()) as Data;
-    const { firstname, surname, email, phone } = data.body;
+    const { firstName, lastName, email, phone } = data.body;
+    console.log(firstName);
+
     try {
         await db.czytelnicy.create({
             data: {
-                imie: firstname,
-                nazwisko: surname,
+                imie: firstName,
+                nazwisko: lastName,
                 email: email,
                 telefon: parseInt(phone),
             },

@@ -24,7 +24,7 @@ interface SuccessResponse {
 
 type SuccessMessage = 'success' | 'error';
 
-export default function Books() {
+export default function Readers() {
     const [data, setData] = useState<czytelnicy[]>([]);
 
     const [search, setSearch] = useState('');
@@ -58,7 +58,7 @@ export default function Books() {
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 const values = {
-                    firstname: data.firstName,
+                    firstName: data.firstName,
                     lastName: data.lastName,
                     email: data.email,
                     phone: data.phone,
@@ -89,12 +89,12 @@ export default function Books() {
                         setDataChanged(!dataChanged);
                         await toast.fire({
                             icon: 'success',
-                            title: 'Dodano książkę',
+                            title: 'Dodano czytelnika',
                         });
                     } else {
                         await toast.fire({
                             icon: 'error',
-                            title: 'Nie można dodać książki',
+                            title: 'Nie można dodać czytelnika',
                         });
                     }
                 });

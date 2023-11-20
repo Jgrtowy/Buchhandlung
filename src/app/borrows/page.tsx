@@ -6,6 +6,7 @@ import '~/styles/nthList.css';
 import { modal, toast } from '~/utils/swal';
 
 interface Borrow {
+    id: number;
     data_od: Date;
     data_do: Date;
     czytelnicy: {
@@ -135,11 +136,12 @@ export default function Borrows() {
         }
     };
 
-    const returnBook = async (id_k: number) => {
+    const returnBook = async (id: number, id_k: number) => {
         try {
             await axios
                 .post('/api/borrows/returnBook', {
                     body: {
+                        id,
                         id_k,
                     },
                 })
@@ -187,8 +189,8 @@ export default function Borrows() {
                                 const dateTo = new Date(item.data_do);
                                 if (item.ksiazki.wypozyczona) {
                                     return (
-                                        <div key={item.ksiazki.id_k} className="py-3 flex justify-around items-center w-screen list">
-                                            <button className="bg-transparent border-2 w-36 border-purple-500 outline-none rounded-lg text-lg px-3" onClick={() => returnBook(item.ksiazki.id_k)}>
+                                        <div key={item.id} className="py-3 flex justify-around items-center w-screen list">
+                                            <button className="bg-transparent border-2 w-36 border-purple-500 outline-none rounded-lg text-lg px-3" onClick={() => returnBook(item.id, item.ksiazki.id_k)}>
                                                 Oddaj
                                             </button>
                                             <div className="text-lg w-52 ">{item.ksiazki.tytul}</div>

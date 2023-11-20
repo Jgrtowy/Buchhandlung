@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
                 id_c: id,
             },
         });
-        return Response.json('success');
+        return Response.json({ message: 'success' });
     } catch (error) {
         console.error(error);
         return Response.json('error');
