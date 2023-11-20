@@ -2,7 +2,7 @@
 import type { ksiazki } from '@prisma/client';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import '~/styles/nthList.css';
+import { v4 } from 'uuid';
 import { modal, toast } from '~/utils/swal';
 
 interface Borrow {
@@ -76,7 +76,7 @@ export default function Borrows() {
 
     const borrowBook = async (id_k: number) => {
         const form = await modal.fire({
-            title: 'Dodaj książkę',
+            title: 'Wypożycz książkę',
             html: `
             <form class="flex flex-col gap-3">
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Imię" type="text" data-form-type="other" name="firstName"/>
@@ -170,7 +170,7 @@ export default function Borrows() {
                 <h1 className="text-4xl">Wypożyczone</h1>
             </div>
             <div className="flex gap-5">
-                <input type="text" onInput={(e) => setSecondSearch(e.currentTarget.value)} value={secondSearch} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
+                <input type="text" placeholder="Szukaj" onInput={(e) => setSecondSearch(e.currentTarget.value)} value={secondSearch} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
             </div>
             {borrowed.length !== 0 && (
                 <>
@@ -189,8 +189,8 @@ export default function Borrows() {
                                 const dateTo = new Date(item.data_do);
                                 if (item.ksiazki.wypozyczona) {
                                     return (
-                                        <div key={item.id} className="py-3 flex justify-around items-center w-screen list">
-                                            <button className="bg-transparent border-2 w-36 border-purple-500 outline-none rounded-lg text-lg px-3" onClick={() => returnBook(item.id, item.ksiazki.id_k)}>
+                                        <div key={v4()} className="py-3 flex justify-around items-center w-screen bg-transparent odd:bg-gray-700/50">
+                                            <button className="bg-transparent border-2 w-36 border-purple-500 outline-none rounded-lg text-lg px-3 hover:bg-purple-500 transition duration-300 ease-in-out" onClick={() => returnBook(item.id, item.ksiazki.id_k)}>
                                                 Oddaj
                                             </button>
                                             <div className="text-lg w-52 ">{item.ksiazki.tytul}</div>
@@ -214,7 +214,7 @@ export default function Borrows() {
                 <h1 className="text-4xl">Reszta książek</h1>
             </div>
             <div className="flex gap-5">
-                <input type="text" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
+                <input type="text" placeholder="Szukaj" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
             </div>
             {data.length !== 0 && (
                 <>
@@ -228,8 +228,8 @@ export default function Borrows() {
                             data.map((book) => {
                                 if (!book.wypozyczona) {
                                     return (
-                                        <div key={book.id_k} className="py-3 flex justify-around items-center w-screen list">
-                                            <button className="bg-transparent border-2 w-36 border-blue-500 outline-none rounded-lg text-lg px-3" onClick={() => borrowBook(book.id_k)}>
+                                        <div key={v4()} className="py-3 flex justify-around items-center w-screen bg-transparent odd:bg-gray-700/50">
+                                            <button className="bg-transparent border-2 w-36 border-blue-500 outline-none rounded-lg text-lg px-3 hover:bg-blue-500 transition duration-300 ease-in-out" onClick={() => borrowBook(book.id_k)}>
                                                 Wypożycz
                                             </button>
                                             <div className="text-lg w-72 ">{book.tytul}</div>

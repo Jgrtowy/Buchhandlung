@@ -2,7 +2,7 @@
 import type { czytelnicy } from '@prisma/client';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import '~/styles/nthList.css';
+import { v4 } from 'uuid';
 import { modal, toast } from '~/utils/swal';
 
 interface ReadersResponse {
@@ -42,9 +42,10 @@ export default function Readers() {
     }, [search, dataChanged]);
 
     const addPopup = async () => {
-        const form = await modal.fire({
-            title: 'Dodaj czytelnika',
-            html: `
+        try {
+            const form = await modal.fire({
+                title: 'Dodaj czytelnika',
+                html: `
             <form class="flex flex-col gap-3">
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Imię" type="text" data-form-type="other" name="firstName"/>
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Nazwisko" type="text" data-form-type="other" name="lastName"/>
@@ -52,34 +53,33 @@ export default function Readers() {
                 <input class="px-3 py-2 bg-transparent outline-none border-2 border-[#57bd8a]" placeholder="Telefon" type="text" data-form-type="other" name="phone"/>
             </form>
             `,
-            confirmButtonText: 'Dodaj',
-            preConfirm: () => {
-                const form = document.querySelector('form')!;
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
-                const values = {
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    email: data.email,
-                    phone: data.phone,
-                };
-                return values;
-            },
-        });
-
-        if (!form.isConfirmed) return;
-
-        const { firstName, lastName, email, phone } = form.value as FormValues;
-
-        if (isNaN(parseInt(phone))) {
-            await toast.fire({
-                icon: 'error',
-                title: 'Niepoprawny numer telefonu',
+                confirmButtonText: 'Dodaj',
+                preConfirm: () => {
+                    const form = document.querySelector('form')!;
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+                    const values = {
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        email: data.email,
+                        phone: data.phone,
+                    };
+                    return values;
+                },
             });
-            return;
-        }
 
-        try {
+            if (!form.isConfirmed) return;
+
+            const { firstName, lastName, email, phone } = form.value as FormValues;
+
+            if (/^[0-9]{9}$/.test(phone) === false) {
+                await toast.fire({
+                    icon: 'error',
+                    title: 'Niepoprawny numer telefonu',
+                });
+                return;
+            }
+
             await axios
                 .post(`/api/readers/add`, {
                     body: { firstName, lastName, email, phone },
@@ -104,26 +104,40 @@ export default function Readers() {
     };
 
     const deleteReader = async (id: number) => {
-        await axios
-            .post('/api/readers/delete', {
-                body: {
-                    id,
-                },
-            })
-            .then(async (res: SuccessResponse) => {
-                if (res.data.message == 'success') {
-                    setDataChanged(!dataChanged);
-                    await toast.fire({
-                        icon: 'success',
-                        title: 'Usunięto czytelnika',
-                    });
-                } else {
-                    await toast.fire({
-                        icon: 'error',
-                        title: 'Nie można usunąć czytelnika',
-                    });
-                }
+        try {
+            const confirmation = await modal.fire({
+                title: 'Czy na pewno chcesz usunąć książkę?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Tak',
+                cancelButtonText: 'Nie',
             });
+
+            if (!confirmation.isConfirmed) return;
+
+            await axios
+                .post('/api/readers/delete', {
+                    body: {
+                        id,
+                    },
+                })
+                .then(async (res: SuccessResponse) => {
+                    if (res.data.message == 'success') {
+                        setDataChanged(!dataChanged);
+                        await toast.fire({
+                            icon: 'success',
+                            title: 'Usunięto czytelnika',
+                        });
+                    } else {
+                        await toast.fire({
+                            icon: 'error',
+                            title: 'Nie można usunąć czytelnika',
+                        });
+                    }
+                });
+        } catch (error) {
+            console.error(error);
+        }
     };
     return (
         <div className="flex flex-col items-center text-white w-100 h-screen gap-5">
@@ -131,7 +145,7 @@ export default function Readers() {
                 <button onClick={addPopup} className="bg-[#100f14] border-2  border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12 flex justify-center items-center hover:bg-[#57bd8a] transition duration-300 ease-in-out">
                     Dodaj
                 </button>
-                <input type="text" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
+                <input type="text" placeholder="Szukaj" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
             </div>
 
             {data.length !== 0 && (
@@ -146,8 +160,8 @@ export default function Readers() {
                     {data.length !== 0 &&
                         data.map((reader) => {
                             return (
-                                <div key={reader.id_c} className="py-3 flex justify-around items-center w-screen list">
-                                    <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3" onClick={() => deleteReader(reader.id_c)}>
+                                <div key={v4()} className="py-3 flex justify-around items-center w-screen bg-transparent odd:bg-gray-700/50">
+                                    <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3 hover:bg-red-500 transition duration-300 ease-in-out" onClick={() => deleteReader(reader.id_c)}>
                                         Usuń
                                     </button>
                                     <div className="text-lg w-72 ">{reader.imie}</div>

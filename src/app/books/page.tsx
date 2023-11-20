@@ -2,7 +2,7 @@
 import type { ksiazki } from '@prisma/client';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import '~/styles/nthList.css';
+import { v4 } from 'uuid';
 import { modal, toast } from '~/utils/swal';
 
 interface BooksResponse {
@@ -101,6 +101,16 @@ export default function Books() {
     };
 
     const deleteBook = async (id: number) => {
+        const confirmation = await modal.fire({
+            title: 'Czy na pewno chcesz usunąć książkę?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Tak',
+            cancelButtonText: 'Nie',
+        });
+
+        if (!confirmation.isConfirmed) return;
+
         await axios
             .post('/api/books/delete', {
                 body: {
@@ -128,7 +138,7 @@ export default function Books() {
                 <button onClick={addPopup} className="bg-[#100f14] border-2  border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12 flex justify-center items-center hover:bg-[#57bd8a] transition duration-300 ease-in-out">
                     Dodaj
                 </button>
-                <input type="text" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
+                <input type="text" placeholder="Szukaj" onInput={(e) => setSearch(e.currentTarget.value)} value={search} className="w-25 text-white px-3 py-1 h-12 bg-[#100f14] outline-none border-2 border-[#57bd8a] rounded-lg text-2xl" />
             </div>
             {data.length !== 0 && (
                 <>
@@ -144,8 +154,8 @@ export default function Books() {
                             data.map((book) => {
                                 const releaseDate = book.data_wydania && new Date(book.data_wydania);
                                 return (
-                                    <div key={book.id_k} className="py-3 flex justify-around items-center w-screen list">
-                                        <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3" onClick={() => deleteBook(book.id_k)}>
+                                    <div key={v4()} className="py-3 flex justify-around items-center w-screen bg-transparent odd:bg-gray-700/50">
+                                        <button className="bg-transparent border-2 border-red-500 outline-none rounded-lg text-lg px-3 hover:bg-red-500 transition duration-300 ease-in-out" onClick={() => deleteBook(book.id_k)}>
                                             Usuń
                                         </button>
                                         <div className="text-lg w-72 ">{book.tytul}</div>

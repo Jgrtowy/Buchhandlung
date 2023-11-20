@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import Swal from 'sweetalert2';
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 export const modal = Swal.mixin({
+    color: '#fff',
     focusConfirm: false,
     confirmButtonColor: '#3b27be',
     background: '#191722',
@@ -20,6 +18,7 @@ export const modal = Swal.mixin({
 });
 
 export const toast = Swal.mixin({
+    color: '#fff',
     toast: true,
     position: 'bottom-end',
     showConfirmButton: false,
