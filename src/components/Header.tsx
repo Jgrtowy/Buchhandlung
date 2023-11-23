@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import '~/styles/Header.css';
+import AuthorsButton from './AuthorsButton';
 
 export default function Header() {
     const classes = 'bg-[#100f14] border-2  border-[#57bd8a] outline-none rounded-lg text-2xl px-3 py-1 h-12 flex justify-center items-center hover:bg-[#57bd8a] transition duration-300 ease-in-out';
 
     return (
-        <header>
+        <header className='gap-5'>
             <Link href="/" className={classes}>
                 {' '}
                 Home{' '}
@@ -22,6 +23,7 @@ export default function Header() {
                 {' '}
                 Wypożyczenia{' '}
             </Link>
+            <AuthorsButton />
         </header>
     );
 }
